@@ -34,7 +34,7 @@ function loadData() {
       // Parse route
       let routeData = lines[lines.length - 1].split(",");
 
-      let result = {
+      let build = {
         seed: lines[0],
         start: {
           lat: routeData[1],
@@ -53,62 +53,71 @@ function loadData() {
       for (var i = 1; i < numSatellites; i++) {
         let satelliteData = lines[i].split(",");
 
-        result.satellites[i] = {
+        build.satellites.push({
             id: satelliteData[0],
             lat: parseFloat(satelliteData[1]),
             long: parseFloat(satelliteData[2]),
             altitude: parseFloat(satelliteData[3]),
             position: satelliteControl.calculatePosition(parseFloat(satelliteData[1]), parseFloat(satelliteData[2]), (parseFloat(satelliteData[3])))
-          };
+          });
       }
 
-      console.log("Data:\n", util.inspect(result, {depth: 7}));
+      //console.log("Data:\n", util.inspect(build, {depth: 7}));
 
       let graph = new Graph((numSatellites + 2));
 
-      // Count distances between start point to satellites
-      
-
-
       // Process starting point
+      console.log("Build list of satellites for start point");
+
       graph.setVertice('start');
 
-      result.satellites.map((satellite, i) => {
+      build.satellites.map((satellite, i) => {
 
         // See if satellite can be reached
-        if (satelliteControl.isReachable) {
+        if (satelliteControl.isReachable(build.start.position, satellite.position)) {
           // Satellite is visible, let's use satellite distance as weight
 
-          let distance = satelliteControl.distanceBetween(result.start.position, satellite.position);
+          let distance = satelliteControl.distanceBetween(build.start.position, satellite.position);
           graph.setEdge('start',  satellite.id, distance);
 
-
-          console.log('***');
-          console.log("Register satellite for start position: " + satellite.id);
-          console.log(satellite);
-          console.log("distance length: " + distance);
+          console.log(`Satellite: ${satellite.id } / distance: ${distance}`);
         }
       });
 
-      // Count distances between end point to satellites
+      console.log('---');
+      console.log("Build list of satellites for end point");
+      graph.setVertice('end');
 
-      // Count distances between satellites
+      build.satellites.map((satellite, i) => {
+        if (satelliteControl.isReachable(build.end.position, satellite.position)) {
+          let distance = satelliteControl.distanceBetween(build.end.position, satellite.position);
+          graph.setEdge('end',  satellite.id, distance);
+          console.log(`Satellite: ${satellite.id } / distance: ${distance}`);
+        }
+      });
 
+      console.log('---');
+      console.log("Build graph for satellites");
 
+      for (var i = 0; i < (build.satellites.length - 1); i++) {
+        for (var j = (i + 1); j < build.satellites.length; j++) {
+          if (satelliteControl.isReachable(build.satellites[i].position, build.satellites[j].position)) {
+            // Satellite is visible, let's use satellite distance as weight
+            let distance = satelliteControl.distanceBetween(build.satellites[i].position, build.satellites[j].position);
+            graph.setEdge(build.satellites[i].id,  build.satellites[j].id, distance);
+            graph.setEdge(build.satellites[j].id,  build.satellites[i].id, distance);
+            console.log(`Satellites connected: ${build.satellites[i].id } - ${build.satellites[j].id } / distance: ${distance}`);
+          }
+        }        
+      }
 
-      // Pushataan graafiin solmut
-      // 1 = alkusolmu
-      // 2 = loppusolmu
-      // ... satelliittia
+      console.log("Graph Ready");
+      console.log("Graph:\n", util.inspect(graph._vertices, {depth: 7}));
 
-
-      // Lasketaan samalla painot
-      // console.log(graph);
-
-        
+      // Search
+      let path = satelliteControl.routePath(graph, (a, b) => { return 0; }, 'start', 'end');
 
   });
-  
 }
 
 loadData();

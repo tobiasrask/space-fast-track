@@ -14,7 +14,7 @@ class Graph {
     // for (let i = 0; i < size; i++)
     //  this._matrix.push(Array(size).fill(Number.MAX_VALUE));
     
-    this._vertices = {};
+    this._data = new Map();
   }
 
   /**
@@ -23,8 +23,22 @@ class Graph {
   * @param key
   */
   setVertice(key) {
-    if (!this._vertices.hasOwnProperty(key))
-      this._vertices[key] = { key: key, edges: [] }
+    this._data.set(key, { key: key, edges: [] });
+  }
+
+  /**
+  * Retrieve vertice.
+  *
+  * @param key
+  * @boolean apply
+  *   Vertice will be inserted if it didn't already exists. Defaults to true.
+  * @return vertice
+  */
+  getVertice(key, apply = true) {
+    if (apply && !this._data.has(key))
+      this.setVertice(key);
+
+    return this._data.get(key);
   }
 
   /**
@@ -35,11 +49,27 @@ class Graph {
   * @param weight
   */
   setEdge(from, to, weight) {
-    // Make sure vertice exists
-    if (!this._vertices.hasOwnProperty(from))
-      this.pushVertice(from);
-    // Apply edge
-    this._vertices[from].edges.push({ key: to, weight: weight });
+    let vertice = this.getVertice(from);
+    vertice['edges'].push({ key: to, weight: weight });
+
+  }
+
+  /**
+  * Returns graph vertices.
+  *
+  * @return data
+  */
+  getData() {
+    return this._data;
+  }
+
+  /**
+  * Returns neighbors for key.
+  *
+  * @return data
+  */  
+  getNeighbor(key) {
+    return this.getVertice(key).edges;
   }
 
   

@@ -26,9 +26,74 @@ class SatelliteControl {
   }
 
   /**
-  * Route path from graph.
+  * Route path through given graph using A*.
+  *
+  * @param graph
+  *   Graph to be processed
+  * @param w
+  *   Callback function for edge weight
+  * @param a
+  *   Start position
+  * @param b
+  *   Destination
   */
-  routePath(G, w, a, b) {
+  routePath(G, w, start, goal) {
+    // Processed nodes
+    let closedSet = new Map();
+
+    // Discovered nodes
+    let openSet = new Map; 
+    openSet.set(start, '');
+
+    // Optimal source node
+    let cameFrom = new Map();
+
+    // Path cost from start node to this node
+    let gScore = new Map(); // = Alkuun
+    gScore.set(start, 0);
+
+    // Total score for path from start to goal node visiting through this node.
+    // = Loppuun (erityisesti alusta + loppuun yhdiestelmä)
+    let fScore = new Map();
+    fScore.set(start, w(start, goal));
+
+    let heap = new Heap(); // == open set...
+    let vertex = null;
+
+
+    G.getData().forEach((vertex, vertexKey) => {
+      gScore.set(vertexKey, Number.MAX_VALUE);
+      fScore.set(vertexKey, Number.MAX_VALUE);
+
+      // Push to heap
+    });
+
+
+    while (!closedSet.has(goal)) {
+      // Vertex with lowest gScore + 
+      let vertexKey = heap.pop();
+      closedSet.set(vertexKey, true);
+
+      G.getNeighbor(vertexKey).map((neighbor) => {
+        // See if node has been processed
+        if (closedSet.has(neighbor.key))
+          return;
+
+        // Dist between current + neighbor
+        let tentative_gScore = gScore.get(vertexKey) + 1
+
+        if (openSet.has(neighbor.key))
+          openSet.set(neighbor.key, true);
+        else if (tentative_gScore > gScore.get(neighbor.key))
+          return;
+
+        // This is best route
+        cameFrom.set(neighbor.key, vertexKey);
+        gScore.set(neighbor.key, tentative_gScore);
+        fScore.set(neighbor.key, tentative_gScore + w(neighbor.key, goal));
+      });
+    }
+    return path;
 
   }
 
