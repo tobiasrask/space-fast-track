@@ -97,7 +97,7 @@ class SatelliteControl {
     let router = new GraphRouter();
     let path = router.graphSearch(graph, (a, b) => {
       let distance = this.distanceBetween(positionIndex[a], positionIndex[b]);
-      console.log(`GCE: Estimate ${a} -> ${b}, distance is ${distance}`);
+      // console.log(`GCE: Estimate ${a} -> ${b}, distance is ${distance}`);
       return distance;
     }, 'start', 'end');
 
@@ -105,7 +105,7 @@ class SatelliteControl {
     console.log("Path:", path);
 
     // To debug data...
-    console.log("Graph:\n", Util.inspect(graph._data, {depth: 7}));
+    // console.log("Graph:\n", Util.inspect(graph._data, {depth: 7}));
 
     return path;
   }
