@@ -3,6 +3,7 @@ import Vector from './vector'
 import Heap from './heap'
 import GraphRouter from './graph-router'
 import Util from 'util'
+
 /**
 * Static instance
 */
@@ -38,7 +39,7 @@ class SatelliteControl {
     let self = this;
 
     // Destruct data
-    let { satellites, start, end } = data;
+    let { seed, start, end, satellites } = data;
     let positionIndex = {};
 
     // Graph will be used to store connections between satellites and
@@ -102,7 +103,8 @@ class SatelliteControl {
     }, 'start', 'end');
 
     console.log("Satellite data processed.");
-    console.log("Path:", path);
+    console.log(`Seed: ${seed}`)
+    console.log(`Path: ${path.join(',')}`);
 
     // To debug data...
     // console.log("Graph:\n", Util.inspect(graph._data, {depth: 7}));
