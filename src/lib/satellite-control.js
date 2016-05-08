@@ -1,4 +1,3 @@
-import Factor from './factor'
 import Graph from './graph'
 import Vector from './vector'
 import Heap from './heap'
@@ -46,12 +45,11 @@ class SatelliteControl {
 
     let graph = new Graph((satellites.length + 2));
 
-      //console.log("Data:\n", Util.inspect(data, {depth: 7}));
+    //console.log("Data:\n", Util.inspect(data, {depth: 7}));
 
     // Process starting point
-    console.log("Build list of satellites for start point");
+    // console.log("Build list of satellites for start point");
     
-
     graph.setVertice('start');
     
     satellites.map((satellite, i) => {
@@ -70,8 +68,8 @@ class SatelliteControl {
       }
     });
 
-    console.log('---');
-    console.log("Build list of satellites for end point");
+    // console.log('---');
+    // console.log("Build list of satellites for end point");
     graph.setVertice('end');
 
     satellites.map((satellite, i) => {
@@ -82,8 +80,8 @@ class SatelliteControl {
       }
     });
 
-    console.log('---');
-    console.log("Build graph for satellites");
+    // console.log('---');
+    // console.log("Build graph for satellites");
 
     for (var i = 0; i < (satellites.length - 1); i++) {
       for (var j = (i + 1); j < satellites.length; j++) {
@@ -97,11 +95,12 @@ class SatelliteControl {
       }        
     }
 
-    console.log("Graph Ready");
-    console.log("Graph:\n", Util.inspect(graph._vertices, {depth: 7}));
-
     let router = new GraphRouter();
     let path = router.graphSearch(graph, (a, b) => { return 0; }, 'start', 'end');
+
+    console.log("Processing ready");
+    console.log("Graph:\n", Util.inspect(graph._vertices, {depth: 7}));
+
   }
 
   /**
