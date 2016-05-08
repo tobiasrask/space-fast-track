@@ -40,49 +40,35 @@ class SatelliteControl {
     // Destruct data
     let { satellites, start, end } = data;
 
+    // Graph will be used to store connections between satellites and 
+    // ground stations.
+    let graph = new Graph((satellites.length + 2));
+
+    // Count positions for start and end
     start.position = this.calculatePosition(start.lat, start.long);
     end.position = this.calculatePosition(end.lat, end.long)
 
-    let graph = new Graph((satellites.length + 2));
-
-    //console.log("Data:\n", Util.inspect(data, {depth: 7}));
-
-    // Process starting point
-    // console.log("Build list of satellites for start point");
-    
+    // Apply satellites that can be viewed from 'start' position
     graph.setVertice('start');
-    
     satellites.map((satellite, i) => {
-
-      // Apply position data
       satellite.position = self.calculatePosition(satellite.lat, satellite.long, satellite.altitude)
-
-      // See if satellite can be reached
       if (self.isReachable(start.position, satellite.position)) {
-        // Satellite is visible, let's use satellite distance as weight
-
         let distance = self.distanceBetween(start.position, satellite.position);
         graph.setEdge('start',  satellite.id, distance);
-
-        console.log(`Satellite: ${satellite.id } / distance: ${distance}`);
       }
     });
 
-    // console.log('---');
-    // console.log("Build list of satellites for end point");
+    // Apply satellites that can be viewed from 'end' or 'goal' position
     graph.setVertice('end');
-
     satellites.map((satellite, i) => {
       if (self.isReachable(end.position, satellite.position)) {
         let distance = self.distanceBetween(end.position, satellite.position);
         graph.setEdge(satellite.id, 'end', distance);
-        console.log(`Satellite: ${satellite.id } / distance: ${distance}`);
       }
     });
 
-    // console.log('---');
-    // console.log("Build graph for satellites");
-
+    // Apply satellites to graph
+    // Satellites will be connected, if they have visual contact
     for (var i = 0; i < (satellites.length - 1); i++) {
       for (var j = (i + 1); j < satellites.length; j++) {
         if (self.isReachable(satellites[i].position, satellites[j].position)) {
@@ -90,17 +76,18 @@ class SatelliteControl {
           let distance = self.distanceBetween(satellites[i].position, satellites[j].position);
           graph.setEdge(satellites[i].id,  satellites[j].id, distance);
           graph.setEdge(satellites[j].id,  satellites[i].id, distance);
-          console.log(`Satellites connected: ${satellites[i].id } - ${satellites[j].id } / distance: ${distance}`);
         }
-      }        
+      }
     }
 
     let router = new GraphRouter();
     let path = router.graphSearch(graph, (a, b) => { return 0; }, 'start', 'end');
 
-    console.log("Processing ready");
-    console.log("Graph:\n", Util.inspect(graph._vertices, {depth: 7}));
+    console.log("Satellite data processed.");
 
+    console.log("Graph:\n", Util.inspect(graph._data, {depth: 7}));
+
+    console.log("Path:", path);
   }
 
   /**
@@ -125,7 +112,7 @@ class SatelliteControl {
   isReachable(from, to) {
     // Calculate the closest point between globe and line between given positions.
     let closestPoint = this.closestPoint(from, to, Vector.zero());
-    return closestPoint.length() >= this._earthRadius ? true : false; 
+    return closestPoint.length() >= this._earthRadius ? true : false;
   }
 
   /**
