@@ -32,7 +32,7 @@ describe('SatelliteControl', () => {
 
       if (vector.length() != (earthRadius + altitude))
         return done(new Error("The result of position vector didn't match expected"));
-      
+
       // Prime meridian check, read more from:
       // https://upload.wikimedia.org/wikipedia/commons/7/7b/ECEF.svg
       if (!Vector.isEqual(vector, new Vector(3, 0, 0)))

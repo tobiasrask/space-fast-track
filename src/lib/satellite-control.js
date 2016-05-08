@@ -39,19 +39,28 @@ class SatelliteControl {
 
     // Destruct data
     let { satellites, start, end } = data;
+    let positionIndex = {};
 
-    // Graph will be used to store connections between satellites and 
+    // Graph will be used to store connections between satellites and
     // ground stations.
     let graph = new Graph((satellites.length + 2));
 
-    // Count positions for start and end
+    // Count positions for start, end and satellites
+    // Build index for positions to support fast estimate checks
     start.position = this.calculatePosition(start.lat, start.long);
     end.position = this.calculatePosition(end.lat, end.long)
+
+    positionIndex['start'] = start.position;
+    positionIndex['end'] = end.position;
+
+    satellites.map((satellite, i) => {
+      satellites[i].position = self.calculatePosition(satellite.lat, satellite.long, satellite.altitude)
+      positionIndex[satellite.id] = satellites[i].position;
+    });
 
     // Apply satellites that can be viewed from 'start' position
     graph.setVertice('start');
     satellites.map((satellite, i) => {
-      satellite.position = self.calculatePosition(satellite.lat, satellite.long, satellite.altitude)
       if (self.isReachable(start.position, satellite.position)) {
         let distance = self.distanceBetween(start.position, satellite.position);
         graph.setEdge('start',  satellite.id, distance);
@@ -60,12 +69,15 @@ class SatelliteControl {
 
     // Apply satellites that can be viewed from 'end' or 'goal' position
     graph.setVertice('end');
+
     satellites.map((satellite, i) => {
       if (self.isReachable(end.position, satellite.position)) {
         let distance = self.distanceBetween(end.position, satellite.position);
         graph.setEdge(satellite.id, 'end', distance);
+        graph.setEdge('end', satellite.id, distance);
       }
     });
+
 
     // Apply satellites to graph
     // Satellites will be connected, if they have visual contact
@@ -80,14 +92,22 @@ class SatelliteControl {
       }
     }
 
+    // Rute path. Note that we provide our heuristic cost estimate function as
+    // argument, this allows A* to choose best routes.
     let router = new GraphRouter();
-    let path = router.graphSearch(graph, (a, b) => { return 0; }, 'start', 'end');
+    let path = router.graphSearch(graph, (a, b) => {
+      let distance = this.distanceBetween(positionIndex[a], positionIndex[b]);
+      console.log(`GCE: Estimate ${a} -> ${b}, distance is ${distance}`);
+      return distance;
+    }, 'start', 'end');
 
     console.log("Satellite data processed.");
+    console.log("Path:", path);
 
+    // To debug data...
     console.log("Graph:\n", Util.inspect(graph._data, {depth: 7}));
 
-    console.log("Path:", path);
+    return path;
   }
 
   /**
@@ -105,6 +125,10 @@ class SatelliteControl {
   * Method checks if two given positions are reachable, eg. they have clear
   * visual contact.
   *
+  * This is now a little bit naive solution, because we are not taking
+  * account athmosphres etc. In this example, only the radius of globe
+  * does matter.
+  *
   * @param from postition
   * @param to postition
   * @return boolean succeed
@@ -116,7 +140,7 @@ class SatelliteControl {
   }
 
   /**
-  * Calculate closest distance between line.
+  * Calculate closest distance between line and given point.
   *
   * @param vector A
   * @param vector B

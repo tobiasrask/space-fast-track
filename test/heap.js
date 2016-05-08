@@ -26,7 +26,7 @@ describe('Heap', () => {
         { key: 'd', 'weigth': 4 },
         { key: 'g', 'weigth': 7 },
         { key: 'f', 'weigth': 6 },
-        { key: 'j', 'weigth': 10 },      
+        { key: 'j', 'weigth': 10 },
         { key: 'h', 'weigth': 8 }
       ]
 

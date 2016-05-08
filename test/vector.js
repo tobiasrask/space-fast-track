@@ -103,7 +103,7 @@ describe('Vector', () => {
 
       vector = new Vector(10, 0, 0);
       vector.scalarMultiply(10);
-      
+
       if (vector.length() != 100)
         return done(new Error("The result of scalar multiplication is not expected"));
 
@@ -137,15 +137,15 @@ describe('Vector', () => {
     it('It should calculate vector substraction', (done) => {
       let vector = null;
 
-      vector = Vector.substract(new Vector(1, 2, 3), new Vector(4, 5, 6)); 
+      vector = Vector.substract(new Vector(1, 2, 3), new Vector(4, 5, 6));
       if (!Vector.isEqual(vector, new Vector(-3, -3, -3)))
         return done(new Error("The result of vector sum is not expected"));
 
-      vector = Vector.substract(new Vector(1, 5, 10), new Vector(5, -10, -3)); 
+      vector = Vector.substract(new Vector(1, 5, 10), new Vector(5, -10, -3));
       if (!Vector.isEqual(vector, new Vector(-4, 15, 13)))
         return done(new Error("The result of vector sum is not expected"));
 
-      vector = Vector.substract(new Vector(-100, -200, -300), new Vector(-50, -30, -20)); 
+      vector = Vector.substract(new Vector(-100, -200, -300), new Vector(-50, -30, -20));
 
       if (!Vector.isEqual(vector, new Vector(-50, -170, -280)))
         return done(new Error("The result of vector sum is not expected"));

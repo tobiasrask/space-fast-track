@@ -60,7 +60,7 @@ class Heap {
   pop() {
     if (!this._heapSize)
       return null;
-    
+
     let min = this._data[1];
     this._data[1] = this._data[this._heapSize];
     this._heapSize--;
@@ -122,7 +122,7 @@ class Heap {
     for (var i = 1; i <= this._heapSize; i++) {
       if (this._data[i].key == key) {
         index = i;
-        break;        
+        break;
       }
     }
 

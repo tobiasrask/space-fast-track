@@ -61,12 +61,12 @@ class Graph {
   * Returns neighbors for key.
   *
   * @return data
-  */  
+  */
   getNeighbor(key) {
     return this.getVertice(key).edges;
   }
 
-  
+
 }
 
 export default Graph;
