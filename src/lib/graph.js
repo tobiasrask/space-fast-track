@@ -1,5 +1,5 @@
 /**
-* Graph
+* Graph implementation.
 */
 class Graph {
 
@@ -9,11 +9,6 @@ class Graph {
   * @param size
   */
   constructor(size) {
-    // Initialize matrix
-    // this._matrix = [];
-    // for (let i = 0; i < size; i++)
-    //  this._matrix.push(Array(size).fill(Number.MAX_VALUE));
-    
     this._data = new Map();
   }
 
@@ -51,7 +46,6 @@ class Graph {
   setEdge(from, to, weight) {
     let vertice = this.getVertice(from);
     vertice['edges'].push({ key: to, weight: weight });
-
   }
 
   /**

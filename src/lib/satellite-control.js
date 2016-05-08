@@ -2,6 +2,12 @@ import Factor from './factor'
 import Graph from './graph'
 import Vector from './vector'
 import Heap from './heap'
+import GraphRouter from './graph-router'
+import Util from 'util'
+/**
+* Static instance
+*/
+var Instance = null;
 
 class SatelliteControl {
 
@@ -11,7 +17,6 @@ class SatelliteControl {
   * @param options
   */
   constructor(options = {}) {
-
     this._earthRadius = options.hasOwnProperty('earthRadius') ?
       options.earthRadius : 6371.0;
   }
@@ -28,73 +33,75 @@ class SatelliteControl {
   /**
   * Route path through given graph using A*.
   *
-  * @param graph
-  *   Graph to be processed
-  * @param w
-  *   Callback function for edge weight
-  * @param a
-  *   Start position
-  * @param b
-  *   Destination
+  * @param data
   */
-  routePath(G, w, start, goal) {
-    // Processed nodes
-    let closedSet = new Map();
+  processSatelliteData(data) {
+    let self = this;
 
-    // Discovered nodes
-    let openSet = new Map; 
-    openSet.set(start, '');
+    // Destruct data
+    let { satellites, start, end } = data;
 
-    // Optimal source node
-    let cameFrom = new Map();
+    start.position = this.calculatePosition(start.lat, start.long);
+    end.position = this.calculatePosition(end.lat, end.long)
 
-    // Path cost from start node to this node
-    let gScore = new Map(); // = Alkuun
-    gScore.set(start, 0);
+    let graph = new Graph((satellites.length + 2));
 
-    // Total score for path from start to goal node visiting through this node.
-    // = Loppuun (erityisesti alusta + loppuun yhdiestelmä)
-    let fScore = new Map();
-    fScore.set(start, w(start, goal));
+      //console.log("Data:\n", Util.inspect(data, {depth: 7}));
 
-    let heap = new Heap(); // == open set...
-    let vertex = null;
+    // Process starting point
+    console.log("Build list of satellites for start point");
+    
 
+    graph.setVertice('start');
+    
+    satellites.map((satellite, i) => {
 
-    G.getData().forEach((vertex, vertexKey) => {
-      gScore.set(vertexKey, Number.MAX_VALUE);
-      fScore.set(vertexKey, Number.MAX_VALUE);
+      // Apply position data
+      satellite.position = self.calculatePosition(satellite.lat, satellite.long, satellite.altitude)
 
-      // Push to heap
+      // See if satellite can be reached
+      if (self.isReachable(start.position, satellite.position)) {
+        // Satellite is visible, let's use satellite distance as weight
+
+        let distance = self.distanceBetween(start.position, satellite.position);
+        graph.setEdge('start',  satellite.id, distance);
+
+        console.log(`Satellite: ${satellite.id } / distance: ${distance}`);
+      }
     });
 
+    console.log('---');
+    console.log("Build list of satellites for end point");
+    graph.setVertice('end');
 
-    while (!closedSet.has(goal)) {
-      // Vertex with lowest gScore + 
-      let vertexKey = heap.pop();
-      closedSet.set(vertexKey, true);
+    satellites.map((satellite, i) => {
+      if (self.isReachable(end.position, satellite.position)) {
+        let distance = self.distanceBetween(end.position, satellite.position);
+        graph.setEdge(satellite.id, 'end', distance);
+        console.log(`Satellite: ${satellite.id } / distance: ${distance}`);
+      }
+    });
 
-      G.getNeighbor(vertexKey).map((neighbor) => {
-        // See if node has been processed
-        if (closedSet.has(neighbor.key))
-          return;
+    console.log('---');
+    console.log("Build graph for satellites");
 
-        // Dist between current + neighbor
-        let tentative_gScore = gScore.get(vertexKey) + 1
-
-        if (openSet.has(neighbor.key))
-          openSet.set(neighbor.key, true);
-        else if (tentative_gScore > gScore.get(neighbor.key))
-          return;
-
-        // This is best route
-        cameFrom.set(neighbor.key, vertexKey);
-        gScore.set(neighbor.key, tentative_gScore);
-        fScore.set(neighbor.key, tentative_gScore + w(neighbor.key, goal));
-      });
+    for (var i = 0; i < (satellites.length - 1); i++) {
+      for (var j = (i + 1); j < satellites.length; j++) {
+        if (self.isReachable(satellites[i].position, satellites[j].position)) {
+          // Satellite is visible, let's use satellite distance as weight
+          let distance = self.distanceBetween(satellites[i].position, satellites[j].position);
+          graph.setEdge(satellites[i].id,  satellites[j].id, distance);
+          graph.setEdge(satellites[j].id,  satellites[i].id, distance);
+          console.log(`Satellites connected: ${satellites[i].id } - ${satellites[j].id } / distance: ${distance}`);
+        }
+      }        
     }
-    return path;
 
+    console.log("Graph Ready");
+    console.log("Graph:\n", Util.inspect(graph._vertices, {depth: 7}));
+
+    let router = new GraphRouter();
+    let path = router.graphSearch(graph, (a, b) => { return 0; }, 'start', 'end');
   }
 
   /**
@@ -109,7 +116,7 @@ class SatelliteControl {
   }
 
   /**
-  * Method checks if two given positions are reachable, eg. they have 
+  * Method checks if two given positions are reachable, eg. they have clear
   * visual contact.
   *
   * @param from postition
@@ -118,7 +125,7 @@ class SatelliteControl {
   */
   isReachable(from, to) {
     // Calculate the closest point between globe and line between given positions.
-    let closestPoint = this.closestPoint(from, to, Vector.zeroPoinVector());
+    let closestPoint = this.closestPoint(from, to, Vector.zero());
     return closestPoint.length() >= this._earthRadius ? true : false; 
   }
 
@@ -184,6 +191,22 @@ class SatelliteControl {
     let z = Math.sin(rLatitude);
 
     return new Vector(x, y, z);
+  }
+
+  /**
+  * Returns singleton object.
+  *
+  * @param options
+  *  If instance if not constructed yet, it will be constructed with given
+  *  options
+  * @param reset
+  *   Boolean value to indicate if entity singleton should be re created
+  *   Defaults to false.
+  */
+  static getInstance(options = {}, reset = false) {
+    if (!Instance || reset)
+      Instance = new SatelliteControl(options);
+    return Instance;
   }
 }
 

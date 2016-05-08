@@ -10,6 +10,7 @@ class Heap {
   constructor() {
     this._heapSize = 0;
     this._data = [null];
+    this._keys = new Map();
   }
 
   /**
@@ -66,7 +67,18 @@ class Heap {
     this.heapify(1);
 
     this._data[(this._data.length - 1)] = null;
+    this._keys.delete(min.key);
+
     return min.key;
+  }
+
+  /**
+  * Test method to evaluate if heap is empty.
+  *
+  * @return boolean is empty.
+  */
+  isEmpty() {
+    return this._heapSize ? false : true;
   }
 
   /**
@@ -84,6 +96,57 @@ class Heap {
       i = this.parent(i);
     }
     this._data[i] = { key: key, value: value };
+    this._keys.set(key, true);
+  }
+
+  /**
+  * Check if heap contains key.
+  *
+  * @param key
+  * @return boolean contains
+  */
+  has(key) {
+    return this._keys.has(key);
+  }
+
+  /**
+  * Update key value.
+  *
+  * @param key
+  * @param new value
+  */
+  updateWeight(key, value) {
+    let index = -1;
+
+    // Search current position from heap
+    for (var i = 1; i <= this._heapSize; i++) {
+      if (this._data[i].key == key) {
+        index = i;
+        break;        
+      }
+    }
+
+    // Make sure we found the match
+    if (index < 0)
+      return;
+
+    // Update value and process heap structure
+    if (value > this._data[index].value) {
+      // Increment
+      this._data[index].value = value;
+      this.heapify(index);
+
+    } else if (value < this._data[index].value) {
+      // Decement
+      this._data[index].value = value;
+
+      while (index > 1 &&
+             this._data[this.parent(index)].value > this._data[index].value) {
+        let parentIndex = this.parent(index);
+        [this._data[index], this._data[parentIndex]] = [this._data[parentIndex], this._data[index]];
+        index = parentIndex;
+      }
+    }
   }
 
   /**

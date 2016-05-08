@@ -1,6 +1,6 @@
 
 /**
-* Vector 3.
+* Example Vector3 implementation.
 */
 class Vector {
 
@@ -65,7 +65,7 @@ class Vector {
   *
   * @return vector
   */
-  static zeroPoinVector() {
+  static zero() {
     return new Vector(0, 0, 0);
   }
 
