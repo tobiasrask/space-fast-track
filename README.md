@@ -7,6 +7,8 @@ NodeJS implementation for [Reaktor Orbital Challenge](https://reaktor.com/orbita
 Run program by using [npm](https://www.npmjs.com/):
 
     $ npm run process [input-data-filename]
+  
+    # for example:
     $ npm run process ./data/input-1.ini
 
 
