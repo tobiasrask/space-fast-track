@@ -142,9 +142,9 @@ class Heap {
 
       while (index > 1 &&
              this._data[this.parent(index)].value > this._data[index].value) {
-        let parentIndex = this.parent(index);
-        [this._data[index], this._data[parentIndex]] = [this._data[parentIndex], this._data[index]];
-        index = parentIndex;
+        let p = this.parent(index);
+        [this._data[index], this._data[p]] = [this._data[p], this._data[index]];
+        index = p;
       }
     }
   }
@@ -159,14 +159,16 @@ class Heap {
     let r = this.right(index);
 
     if (r <= this._heapSize) {
-      let smallest = this._data[l].value < this._data[r].value ? l : r;
+      // Get smallest value
+      let s = this._data[l].value < this._data[r].value ? l : r;
 
-      if (this._data[index].value > this._data[smallest].value) {
-        [this._data[index], this._data[smallest]] = [this._data[smallest], this._data[index]];
-        this.heapify(smallest);
+      if (this._data[index].value > this._data[s].value) {
+        [this._data[index], this._data[s]] = [this._data[s], this._data[index]];
+        this.heapify(s);
       }
 
-    } else if (l == this._heapSize && this._data[index].value > this._data[l].value) {
+    } else if (l == this._heapSize &&
+               this._data[index].value > this._data[l].value) {
       [this._data[index], this._data[l]] = [this._data[l], this._data[index]];
     }
   }

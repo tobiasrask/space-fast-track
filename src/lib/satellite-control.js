@@ -55,7 +55,9 @@ class SatelliteControl {
     positionIndex['end'] = end.position;
 
     satellites.map((satellite, i) => {
-      satellites[i].position = self.calculatePosition(satellite.lat, satellite.long, satellite.altitude)
+      satellites[i].position = self.calculatePosition(satellite.lat,
+          satellite.long,
+          satellite.altitude);
       positionIndex[satellite.id] = satellites[i].position;
     });
 
@@ -86,7 +88,8 @@ class SatelliteControl {
       for (var j = (i + 1); j < satellites.length; j++) {
         if (self.isReachable(satellites[i].position, satellites[j].position)) {
           // Satellite is visible, let's use satellite distance as weight
-          let distance = self.distanceBetween(satellites[i].position, satellites[j].position);
+          let distance = self.distanceBetween(satellites[i].position,
+            satellites[j].position);
           graph.setEdge(satellites[i].id,  satellites[j].id, distance);
           graph.setEdge(satellites[j].id,  satellites[i].id, distance);
         }
@@ -136,7 +139,8 @@ class SatelliteControl {
   * @return boolean succeed
   */
   isReachable(from, to) {
-    // Calculate the closest point between globe and line between given positions.
+    // Calculate the closest point between center of globe and line between
+    // given positions.
     let closestPoint = this.closestPoint(from, to, Vector.zero());
     return closestPoint.length() >= this._earthRadius ? true : false;
   }

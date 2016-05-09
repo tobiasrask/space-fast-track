@@ -13,7 +13,6 @@ class Vector {
     this.z = z;
   }
 
-
   /**
   * Do vector dot operation for given two vectors.
   *
@@ -100,7 +99,7 @@ class Vector {
   * Describe vector.
   */
   toString() {
-    return `Vector: [${ this.x }, ${ this.y }, ${ this.z }], length: ${this.length()}`;
+    return `Vector: [${ this.x }, ${ this.y }, ${ this.z }] / ${this.length()}`;
   }
 }
 
