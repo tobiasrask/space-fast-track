@@ -3,8 +3,8 @@ NodeJS implementation for [Reaktor Orbital Challenge](https://reaktor.com/orbita
 
 ### How to solve the challenge?
 
-In this example we use graph, heap and A* algorithm to find shortest route
-through network of given satellites.
+In this example we use vectors, graph, heap and A* search algorithm to find the
+shortest route through network of given satellites.
 
 Run program by using [npm](https://www.npmjs.com/):
 
