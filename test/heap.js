@@ -11,8 +11,6 @@ describe('Heap', () => {
     })
   });
 
-
-
   describe('Return pushed items in min order', () => {
     it('It should do the math', (done) => {
       let heap = new Heap();
