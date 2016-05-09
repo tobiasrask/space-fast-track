@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha --compilers js:babel-core/register ./test --recursive",
     "compile": "babel --presets es2015,stage-0 -d lib/ src/",
-    "process": "node src/run './data/input-1.ini'"
+    "process": "node src/run"
   },
   "repository": {
     "type": "git",
